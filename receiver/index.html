@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="smoothie.js"></script>
+        <script type="text/javascript">
+
+      var averaging = [];
+      // Randomly add a data point every 500ms
+      var rssi = new TimeSeries();
+      var rand = new TimeSeries();
+      var measured = new TimeSeries();
+      var avgLine = new TimeSeries();
+      var distLine = new TimeSeries();
+//      setInterval(function() {
+//        random.append(new Date().getTime(), Math.random() * 10000);
+//        rand.append(new Date().getTime(), Math.random()*5000);
+//      }, 500);
+      
+      function createTimeline() {
+        var chart = new SmoothieChart({interpolation:'linear',maxValue:10,minValue:-100});
+        chart.addTimeSeries(rssi, { strokeStyle: 'rgba(0, 255, 0, 1)', fillStyle: 'rgba(0, 255, 0, 0.2)', lineWidth: 1 });
+        chart.addTimeSeries(rand);
+        chart.addTimeSeries(measured, {strokeStyle: 'rgb(255,0,255)', lineWidth:3});
+        chart.addTimeSeries(avgLine, {strokeStyle: 'rgb(255,127,0)', lineWidth:3});
+        chart.addTimeSeries(distLine, {strokeStyle: 'rgb(127,127,0)', lineWidth:3});
+        chart.streamTo(document.getElementById("chart"), 500);
+      }
+      
+      var ws = new WebSocket('ws://192.168.2.52:8080');
+      ws.onopen = function(){
+          console.log("connected");
+      };
+      ws.onmessage = function(msgEvent) {
+          var msg = JSON.parse(msgEvent.data);
+          console.log("received ", msg.rssi);
+          var now = new Date().getTime();
+          rssi.append(new Date().getTime(), msg.rssi);
+          rand.append(new Date().getTime(), msg.accuracy);
+          measured.append(new Date().getTime(), msg.measuredPower);
+	  if(averaging.length == 10) {
+      	averaging.shift();
+	    averaging.push(msg.rssi);
+	    var averaged = doAverage(averaging);
+	    var dd = distance(msg.measuredPower, averaged);
+	    distLine.append(new Date().getTime(), dd);
+          } else {
+             averaging.push(msg.rssi);
+          }
+      }
+function doAverage(arraylist) {
+  var sum=0;
+  var count=0;
+  for (index = 0; index < arraylist.length; index++) {
+     sum = sum +(arraylist[index]*(index+1));
+	count = count + (index+1);
+  }
+  var avg = sum / count;
+  avgLine.append(new Date().getTime(), avg);
+  console.log("avg is " + avg);
+  return avg;
+}
+function distance(measuredPower, avg) {
+  var dist = Math.pow(10.0, ((measuredPower+(-1*avg))/(10.0*2.2)));
+  console.log("distance "+dist);
+  return dist;
+}
+
+    </script>
+    </head>
+    <body onload="createTimeline()">
+        <div>TODO write content</div>
+        <canvas id="chart" width="800" height="400"></canvas>
+    </body>
+</html>
