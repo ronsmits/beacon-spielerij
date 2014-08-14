@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="raphael.js"></script>
+        <script type="text/javascript">
+        // 100px = 80cm
+        var scale = 100/80;
+        var left;
+        var right;
+        //var bottom;
+        var paper;
+        var leftX = 350;
+        var rightX = 450;
+        var bottomX = 350;
+        var bottomY = 160*scale;
+        var leftarray=[];
+        var rightarray=[];
+        var bottomArray=[];
+        var arraySize=5;
+        function setup() {
+        	paper = Raphael(10, 50, 800, 800);
+        	paper.circle(leftX,0,10); // left beacon
+        	paper.circle(rightX,0,10); // right beacon
+        	paper.circle(bottomX, bottomY, 10);
+        	paper.path(Raphael.format("M{0},{1}h{2}v{3}h{4}z", 0, 0, 800, 800, -800));
+        	left = paper.circle(leftX, 0, 100*scale);
+        	right = paper.circle(rightX, 0, 100*scale);
+        	bottom = paper.circle(bottomX, bottomY, 100*scale);
+        }
+        // setup the socket to get the updates
+        var ws = new WebSocket('ws://192.168.2.52:8080');
+        ws.onopen = function(){
+        	console.log("connection opened");
+        };
+        ws.onmessage = function(msgEvent){
+        	var msg = JSON.parse(msgEvent.data);
+        	console.log('drawing');
+        	if (msg.major=='21376') {
+        		handleMsg(rightarray, msg, right, rightX);
+        	}
+        	if(msg.major=='34803') {
+        		handleMsg(leftarray, msg, left, leftX);
+        	}
+        	if (msg.major=='54264') {
+        		handleMsg(bottomArray, msg, bottom, bottomY);
+        	}
+        };
+
+        function handleMsg(theArray, theMsg, theCircle, theXposition) {
+        	if (theArray.length==arraySize){
+        		theArray.shift();
+        		theArray.push(theMsg.rssi);
+        		var avg = doAverage(theArray);
+        		var dist = distance(theMsg.measuredPower, avg);
+        		if (theXposition == leftX) { 
+        			console.log("drawing left");
+        			left.remove();
+        			left = paper.circle(theXposition, 0, (dist*100)*scale);
+        		}
+        		if(theXposition== rightX) {
+        			right.remove();
+        			right = paper.circle(rightX, 0, (dist*100)*scale);
+        		}
+        		if(theXposition == bottomY) {
+        			bottom.remove();
+        			bottom = paper.circle(bottomX, bottomY, (dist*100)*scale);
+        		}
+        	} else {
+        		theArray.push(theMsg.rssi);
+        	}
+        }
+        function distance(measuredPower, rssi) {
+        	var dist = Math.pow(10.0, ((measuredPower+(-1*rssi))/(10.0*2.2)));
+        	console.log("distance "+dist);
+        	return dist;
+        }
+
+        function doAverage(arraylist) {
+        	var sum=0;
+        	var count=0;
+        	for (index = 0; index < arraylist.length; index++) {
+        		sum = sum +(arraylist[index]*(index+1));
+        		count = count + (index+1);
+        	}
+        	var avg = sum / count;
+        	console.log("avg is " + avg);
+        	return avg;
+        }
+        </script>
+    </head>
+
+    <body onload="setup()">
+    </body>

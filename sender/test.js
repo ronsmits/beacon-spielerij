@@ -17,7 +17,8 @@ Bleacon.on('discover', function(bleacon) {
     distance(bleacon);
 });
 //Bleacon.startScanning('e2c56db5dffb48d2b060d0f5a71096e0');
-Bleacon.startScanning('b9407f30f5f8466eaff925556b57fe6d', 21376);
+Bleacon.startScanning('b9407f30f5f8466eaff925556b57fe6d');
+//Bleacon.startScanning('b9407f30f5f8466eaff925556b57fe6d', 21376);
 //Bleacon.startScanning();
 var distance = function(bleacon) {
   var dist = Math.pow(10.0, ((bleacon.measuredPower+(-1*bleacon.rssi))/(10.0*2.2)));
