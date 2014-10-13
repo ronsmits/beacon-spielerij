@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="text/javascript" src="raphael.js"></script>
+        <script src="http://cdn.sockjs.org/sockjs-0.3.4.min.js"></script>
+        <script type="text/javascript" src="vertxbus-2.1.js"></script>
+
+        <script type="text/javascript">
+        var scale = 100/140;
+        var x;
+        var y;
+        var loc;
+
+        function setup() {
+          paper = Raphael(10, 50, 800, 800);
+          paper.path(Raphael.format("M{0},{1}h{2}v{3}h{4}z", 0, 0, 800, 800, -800));
+          loc = paper.circle(10, 10, 10);
+          loc.attr({fill: '#9cf', stroke: '#ddd', 'stroke-width': 1});
+
+          var eb = new vertx.EventBus('http://localhost:9876/comm');
+          eb.onopen = function() {
+            eb.registerHandler('ibeacon.position.update',function(message){
+              // console.log(message);
+              var msg = JSON.parse(message);
+
+              if (msg.beaconId=="54264"){
+                loc.remove();
+                x = msg.position.x;
+                y = msg.position.y;
+                x = x * 100;
+                y = y * 100;
+                console.log("x "+x +" y "+ y);
+                loc = paper.circle(x, y, 10);
+                loc.attr({fill: '#9cf', stroke: '#ddd', 'stroke-width': 1});
+              }
+            });
+          }
+        }
+
+
+        </script>
+
+  </head>
+  <body onload="setup()">
+
+  </body>
