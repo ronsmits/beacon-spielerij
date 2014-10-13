@@ -25,7 +25,7 @@ Bleacon.on('discover', function(bleacon) {
 			+'"'+bleacon.major+'", '
 			+'"rssi":'+bleacon.rssi+', '
 			+'"distance":'+distance(bleacon) + ', '
-			+'"measurePower":'+bleacon.measuredPower
+			+'"measuredPower":'+bleacon.measuredPower
 			+'}';
  		socket.send(info);
 });
