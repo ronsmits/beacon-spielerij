@@ -18,14 +18,14 @@ var socket = new ws("ws://"+server+":9876");
 
 socket.on('open', function(){
 	console.log('opened');
-	
+
 });
 Bleacon.on('discover', function(bleacon) {
 		var info = '{"position":"'+position+'", "beacon": '
 			+'"'+bleacon.major+'", '
 			+'"rssi":'+bleacon.rssi+', '
 			+'"distance":'+distance(bleacon) + ', '
-			+'"accuracy":' + bleacon.accuracy+', ', '
+			+'"accuracy":' + bleacon.accuracy+', '
 			+'"measuredPower":'+bleacon.measuredPower
 			+'}';
 console.log(info);
