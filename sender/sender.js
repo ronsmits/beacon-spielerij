@@ -1,17 +1,27 @@
 var Bleacon = require('bleacon');
 console.log("started");
 
+if (process.argv.length!=4) {
+  console.log ("Usage: sudo node server.js [P1|P2|P3] <server>");
+  process.exit(-1);
+}
+console.log(process.argv.length);
+var position = process.argv[2];
+var server = process.argv[3];
+
+console.log("Position: "+position+" Server: " + server);
+
 // Create a websocket server. This has to be done in node as
 // normal javascript cannot create a server only a listener
 var ws = require('ws');
-var socket = new ws("ws://192.168.33.21:9876");
+var socket = new ws("ws://"+server+":9876");
 
 socket.on('open', function(){
 	console.log('opened');
 	
 });
 Bleacon.on('discover', function(bleacon) {
-		var info = '{"position":"P1", "beacon": '
+		var info = '{"position":"'+position+'", "beacon": '
 			+'"'+bleacon.major+'", '
 			+'"rssi":'+bleacon.rssi+', '
 			+'"distance":'+distance(bleacon) + ', '
