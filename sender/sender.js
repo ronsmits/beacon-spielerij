@@ -24,10 +24,11 @@ Bleacon.on('discover', function(bleacon) {
 		var info = '{"position":"'+position+'", "beacon": '
 			+'"'+bleacon.major+'", '
 			+'"rssi":'+bleacon.rssi+', '
-			+'"distance":'+distance(bleacon) + ', ',
-			+'"accuracy":' + bleacon.accuracy+', ', ',
+			+'"distance":'+distance(bleacon) + ', '
+			+'"accuracy":' + bleacon.accuracy+', ', '
 			+'"measuredPower":'+bleacon.measuredPower
 			+'}';
+console.log(info);
  		socket.send(info);
 });
 
