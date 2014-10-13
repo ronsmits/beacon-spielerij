@@ -25,7 +25,7 @@ Bleacon.on('discover', function(bleacon) {
 			+'"'+bleacon.major+'", '
 			+'"rssi":'+bleacon.rssi+', '
 			+'"distance":'+distance(bleacon) + ', ',
-			"'"accuracy":' + bleacon.accuracy+', ', ',
+			+'"accuracy":' + bleacon.accuracy+', ', ',
 			+'"measuredPower":'+bleacon.measuredPower
 			+'}';
  		socket.send(info);
